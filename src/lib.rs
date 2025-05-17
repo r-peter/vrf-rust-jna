@@ -16,6 +16,10 @@ use std::str;
 use std::mem;
 use std::os::raw::c_char;
 
+struct VRFOutput{
+   proof: *const c_char,
+   vrf_hash: *const c_char
+}
 
 /// Example of just calling into Rust
 /// It is marked as "no_mangle", so that our Java code can still see the Rust function after it's
@@ -24,7 +28,8 @@ use std::os::raw::c_char;
 /// to use camelCase to match the name of the function in Java.
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern fn prove(sk: *const c_char, preSeed: *const c_char ) -> *const c_char {
+pub extern fn prove(sk: *const c_char, preSeed: *const c_char ) -> VRFOutput{
+//(*const c_char, *const c_char) {
     // init vrf
     let mut vrf = ECVRF::from_suite(CipherSuite::SECP256K1_SHA256_TAI).unwrap();
 
@@ -38,9 +43,12 @@ pub extern fn prove(sk: *const c_char, preSeed: *const c_char ) -> *const c_char
 
     // get proof
     let pi = vrf.prove(&secret_key, &message).unwrap();
+    let hash = vrf.proof_to_hash(&pi).unwrap();
+    
+    VRFOutput{ proof: to_ptr(hex::encode(&pi)), vrf_hash: to_ptr(hex::encode(&hash)) }
 
     // return proof
-    return to_ptr(hex::encode(&pi));
+    //return (to_ptr(hex::encode(&pi)),to_ptr(hex::encode(&hash)));
 }
 
 #[no_mangle]
