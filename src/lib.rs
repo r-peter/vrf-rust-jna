@@ -16,9 +16,9 @@ use std::str;
 use std::mem;
 use std::os::raw::c_char;
 
-struct VRFOutput{
-   proof: *const c_char,
-   vrf_hash: *const c_char
+pub struct VRFOutput{
+   pub proof: *const c_char,
+   pub vrf_hash: *const c_char
 }
 
 /// Example of just calling into Rust
@@ -45,10 +45,13 @@ pub extern fn prove(sk: *const c_char, preSeed: *const c_char ) -> VRFOutput{
     let pi = vrf.prove(&secret_key, &message).unwrap();
     let hash = vrf.proof_to_hash(&pi).unwrap();
     
-    VRFOutput{ proof: to_ptr(hex::encode(&pi)), vrf_hash: to_ptr(hex::encode(&hash)) }
-
     // return proof
     //return (to_ptr(hex::encode(&pi)),to_ptr(hex::encode(&hash)));
+    
+    VRFOutput { 
+       proof: to_ptr(hex::encode(&pi)), 
+       vrf_hash: to_ptr(hex::encode(&hash)),
+   }
 }
 
 #[no_mangle]
