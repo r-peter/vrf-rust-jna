@@ -16,9 +16,10 @@ use std::str;
 use std::mem;
 use std::os::raw::c_char;
 
+#[repr(C)]
 pub struct VRFOutput{
    pub proof: *const c_char,
-   pub vrf_hash: *const c_char
+   pub vrf_hash: *const c_char,
 }
 
 /// Example of just calling into Rust
@@ -28,7 +29,7 @@ pub struct VRFOutput{
 /// to use camelCase to match the name of the function in Java.
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern fn prove(sk: *const c_char, preSeed: *const c_char ) -> VRFOutput{
+pub extern "C" fn prove(sk: *const c_char, preSeed: *const c_char ) -> VRFOutput{
 //(*const c_char, *const c_char) {
     // init vrf
     let mut vrf = ECVRF::from_suite(CipherSuite::SECP256K1_SHA256_TAI).unwrap();
@@ -56,7 +57,7 @@ pub extern fn prove(sk: *const c_char, preSeed: *const c_char ) -> VRFOutput{
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern fn verify(pk: *const c_char, preSeed: *const c_char, pi: *const c_char, ) -> bool {
+pub extern "C" fn verify(pk: *const c_char, preSeed: *const c_char, pi: *const c_char, ) -> bool {
     // init vrf
     let mut vrf = ECVRF::from_suite(CipherSuite::SECP256K1_SHA256_TAI).unwrap();
 
